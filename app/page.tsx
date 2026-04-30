@@ -13,10 +13,31 @@ type Team = {
   missing_count: number
 }
 
+const SAMPLE_DATA = [
+  { email: 'teamalpha@uw.edu', items: [
+    { name: 'Hollyland Lark M2 Wireless Microphone System', quantity: 1 },
+    { name: 'Anker USB-C Hub 7-in-1', quantity: 2 },
+    { name: 'HDMI Cable 6ft', quantity: 3 },
+    { name: 'Logitech C920 HD Webcam', quantity: 1 },
+  ]},
+  { email: 'teambeta@uw.edu', items: [
+    { name: 'Arduino Uno R3 Starter Kit', quantity: 1 },
+    { name: 'Raspberry Pi 4 Model B 8GB', quantity: 1 },
+    { name: 'Breadboard 830 Points', quantity: 2 },
+    { name: 'USB-A to Micro USB Cable 3ft', quantity: 4 },
+  ]},
+  { email: 'teamgamma@uw.edu', items: [
+    { name: 'GoPro HERO12 Black Action Camera', quantity: 1 },
+    { name: 'SanDisk 128GB microSD Card', quantity: 2 },
+    { name: 'Rode VideoMicro Compact Microphone', quantity: 1 },
+  ]},
+]
+
 export default function Home() {
   const [teams, setTeams] = useState<Team[]>([])
   const [loading, setLoading] = useState(true)
   const [uploading, setUploading] = useState(false)
+  const [seeding, setSeeding] = useState(false)
   const [error, setError] = useState<string | null>(null)
 
   useEffect(() => {
@@ -148,6 +169,32 @@ export default function Home() {
     e.target.value = ''
   }
 
+  async function loadSampleData() {
+    if (!confirm('Load sample data? This will replace all existing data.')) return
+    setSeeding(true)
+    setError(null)
+    try {
+      await supabase.from('items').delete().neq('id', '00000000-0000-0000-0000-000000000000')
+      await supabase.from('teams').delete().neq('id', '00000000-0000-0000-0000-000000000000')
+
+      for (const { email, items } of SAMPLE_DATA) {
+        const { data: team, error: teamErr } = await supabase
+          .from('teams').insert({ email }).select().single()
+        if (teamErr) throw teamErr
+        const { error: itemsErr } = await supabase.from('items').insert(
+          items.map(i => ({ team_id: team.id, ...i, status: 'pending' }))
+        )
+        if (itemsErr) throw itemsErr
+      }
+      await fetchTeams()
+    } catch (err) {
+      setError('Failed to load sample data.')
+      console.error(err)
+    } finally {
+      setSeeding(false)
+    }
+  }
+
   const totalItems = teams.reduce((s, t) => s + t.item_count, 0)
   const totalReturned = teams.reduce((s, t) => s + t.returned_count, 0)
   const totalMissing = teams.reduce((s, t) => s + t.missing_count, 0)
@@ -168,16 +215,25 @@ export default function Home() {
               <p className="font-medium text-gray-800 text-sm">Upload purchase list</p>
               <p className="text-xs text-gray-400 mt-0.5">Required columns: <code>email</code>, <code>item_name</code>, <code>quantity</code></p>
             </div>
-            <label className={`flex-shrink-0 cursor-pointer px-4 py-2 rounded-lg text-sm font-medium text-white transition-colors ${uploading ? 'bg-gray-300 cursor-not-allowed' : 'bg-blue-600 hover:bg-blue-700'}`}>
-              {uploading ? 'Uploading…' : 'Choose CSV'}
-              <input
-                type="file"
-                accept=".csv"
-                onChange={handleCSVUpload}
-                disabled={uploading}
-                className="hidden"
-              />
-            </label>
+            <div className="flex gap-2 flex-shrink-0">
+              <button
+                onClick={loadSampleData}
+                disabled={seeding || uploading}
+                className="px-3 py-2 rounded-lg text-sm font-medium border border-gray-300 text-gray-600 hover:bg-gray-50 disabled:opacity-40 transition-colors"
+              >
+                {seeding ? 'Loading…' : 'Load sample data'}
+              </button>
+              <label className={`cursor-pointer px-4 py-2 rounded-lg text-sm font-medium text-white transition-colors ${uploading ? 'bg-gray-300 cursor-not-allowed' : 'bg-blue-600 hover:bg-blue-700'}`}>
+                {uploading ? 'Uploading…' : 'Choose CSV'}
+                <input
+                  type="file"
+                  accept=".csv"
+                  onChange={handleCSVUpload}
+                  disabled={uploading}
+                  className="hidden"
+                />
+              </label>
+            </div>
           </div>
         </div>
 
