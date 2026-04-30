@@ -206,9 +206,14 @@ export default function Home() {
       <div className="max-w-2xl mx-auto px-4 py-10">
 
         {/* Header */}
-        <div className="mb-8">
-          <h1 className="text-3xl font-bold text-slate-900">GIX Equipment Return</h1>
-          <p className="text-slate-500 mt-2">Upload Dorothy&apos;s CSV or load sample data, then check off returns by team.</p>
+        <div className="flex items-start justify-between mb-8">
+          <div>
+            <h1 className="text-3xl font-bold text-slate-900">GIX Equipment Return</h1>
+            <p className="text-slate-500 mt-2">Upload Dorothy&apos;s CSV or load sample data, then check off returns by team.</p>
+          </div>
+          <Link href="/events" className="flex-shrink-0 px-4 py-2 rounded-xl border border-slate-200 text-sm font-medium text-slate-600 hover:bg-slate-100 transition-colors mt-1">
+            📅 GIX Events
+          </Link>
         </div>
 
         {/* Upload / Sample */}
