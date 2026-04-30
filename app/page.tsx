@@ -188,7 +188,8 @@ export default function Home() {
       }
       await fetchTeams()
     } catch (err) {
-      setError('Failed to load sample data.')
+      const msg = err instanceof Error ? err.message : JSON.stringify(err)
+      setError('Failed to load sample data: ' + msg)
       console.error(err)
     } finally {
       setSeeding(false)
