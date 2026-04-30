@@ -202,102 +202,94 @@ export default function Home() {
   const progressPct = totalItems > 0 ? Math.round((totalReturned / totalItems) * 100) : 0
 
   return (
-    <main className="min-h-screen bg-gray-50">
-      <div className="max-w-2xl mx-auto px-4 py-8">
+    <main className="min-h-screen bg-slate-50">
+      <div className="max-w-2xl mx-auto px-4 py-10">
 
-        <div className="mb-6">
-          <h1 className="text-2xl font-bold text-gray-900">GIX Equipment Return</h1>
-          <p className="text-sm text-gray-500 mt-1">Upload Dorothy&apos;s CSV, then check off returns by team.</p>
+        {/* Header */}
+        <div className="mb-8">
+          <h1 className="text-3xl font-bold text-slate-900">GIX Equipment Return</h1>
+          <p className="text-slate-500 mt-2">Upload Dorothy&apos;s CSV or load sample data, then check off returns by team.</p>
         </div>
 
-        <div className="bg-white rounded-xl border border-gray-200 p-4 mb-5">
-          <div className="flex items-center justify-between gap-4">
-            <div>
-              <p className="font-medium text-gray-800 text-sm">Upload purchase list</p>
-              <p className="text-xs text-gray-400 mt-0.5">Required columns: <code>email</code>, <code>item_name</code>, <code>quantity</code></p>
-            </div>
-            <div className="flex gap-2 flex-shrink-0">
-              <button
-                onClick={loadSampleData}
-                disabled={seeding || uploading}
-                className="px-3 py-2 rounded-lg text-sm font-medium border border-gray-300 text-gray-600 hover:bg-gray-50 disabled:opacity-40 transition-colors"
-              >
-                {seeding ? 'Loading…' : 'Load sample data'}
-              </button>
-              <label className={`cursor-pointer px-4 py-2 rounded-lg text-sm font-medium text-white transition-colors ${uploading ? 'bg-gray-300 cursor-not-allowed' : 'bg-blue-600 hover:bg-blue-700'}`}>
-                {uploading ? 'Uploading…' : 'Choose CSV'}
-                <input
-                  type="file"
-                  accept=".csv"
-                  onChange={handleCSVUpload}
-                  disabled={uploading}
-                  className="hidden"
-                />
-              </label>
-            </div>
+        {/* Upload / Sample */}
+        <div className="bg-white rounded-2xl border border-slate-200 p-5 mb-5 shadow-sm">
+          <p className="font-semibold text-slate-700 mb-1">Import data</p>
+          <p className="text-sm text-slate-400 mb-4">CSV columns required: <code className="bg-slate-100 px-1.5 py-0.5 rounded text-xs">email</code>, <code className="bg-slate-100 px-1.5 py-0.5 rounded text-xs">item_name</code>, <code className="bg-slate-100 px-1.5 py-0.5 rounded text-xs">quantity</code></p>
+          <div className="flex flex-wrap gap-3">
+            <button
+              onClick={loadSampleData}
+              disabled={seeding || uploading}
+              className="px-5 py-2.5 rounded-xl border border-slate-300 text-slate-700 text-sm font-semibold hover:bg-slate-50 disabled:opacity-40 transition-colors"
+            >
+              {seeding ? 'Loading…' : '✦ Load sample data'}
+            </button>
+            <label className={`cursor-pointer px-5 py-2.5 rounded-xl text-sm font-semibold text-white transition-colors ${uploading ? 'bg-slate-300 cursor-not-allowed' : 'bg-blue-600 hover:bg-blue-700'}`}>
+              {uploading ? 'Uploading…' : '↑ Upload CSV'}
+              <input type="file" accept=".csv" onChange={handleCSVUpload} disabled={uploading} className="hidden" />
+            </label>
           </div>
         </div>
 
         {error && (
-          <div className="bg-red-50 border border-red-200 text-red-700 rounded-lg p-3 mb-4 text-sm">
+          <div className="bg-red-50 border border-red-200 text-red-700 rounded-xl p-4 mb-4 text-sm">
             {error}
           </div>
         )}
 
+        {/* Overall progress */}
         {teams.length > 0 && (
-          <div className="bg-white rounded-xl border border-gray-200 p-4 mb-5">
-            <div className="flex justify-between text-sm mb-2">
-              <span className="text-gray-600">Overall progress</span>
-              <span className="font-medium text-gray-800">
-                {totalReturned}/{totalItems} returned
+          <div className="bg-white rounded-2xl border border-slate-200 p-5 mb-5 shadow-sm">
+            <div className="flex justify-between mb-3">
+              <span className="font-semibold text-slate-700">Overall progress</span>
+              <span className="text-slate-500 text-sm">
+                <span className="font-bold text-slate-800">{totalReturned}</span>/{totalItems} returned
                 {totalMissing > 0 && <span className="text-red-500 ml-2">· {totalMissing} missing</span>}
               </span>
             </div>
-            <div className="w-full bg-gray-100 rounded-full h-2">
+            <div className="w-full bg-slate-100 rounded-full h-3">
               <div
-                className="bg-green-500 h-2 rounded-full transition-all duration-300"
+                className={`h-3 rounded-full transition-all duration-500 ${progressPct === 100 ? 'bg-emerald-500' : 'bg-blue-500'}`}
                 style={{ width: `${progressPct}%` }}
               />
             </div>
-            <p className="text-xs text-gray-400 mt-1.5">{progressPct}% complete · {teams.length} teams</p>
+            <p className="text-sm text-slate-400 mt-2">{progressPct}% · {teams.length} teams</p>
           </div>
         )}
 
+        {/* Team list */}
         {loading ? (
-          <p className="text-gray-400 text-center py-12">Loading…</p>
+          <p className="text-slate-400 text-center py-12 text-lg">Loading…</p>
         ) : teams.length === 0 ? (
-          <div className="text-center py-16 text-gray-400">
-            <p className="text-4xl mb-3">📦</p>
-            <p className="text-sm">No teams yet. Upload a CSV to get started.</p>
+          <div className="text-center py-20 text-slate-400">
+            <p className="text-5xl mb-4">📦</p>
+            <p className="text-base">No teams yet. Load sample data or upload a CSV.</p>
           </div>
         ) : (
-          <div className="space-y-2">
+          <div className="space-y-3">
             {teams.map((team) => {
-              const pct = team.item_count > 0
-                ? Math.round((team.returned_count / team.item_count) * 100)
-                : 0
+              const pct = team.item_count > 0 ? Math.round((team.returned_count / team.item_count) * 100) : 0
               const allDone = team.returned_count === team.item_count && team.item_count > 0
 
               return (
                 <Link
                   key={team.id}
                   href={`/team/${team.id}`}
-                  className="block bg-white rounded-xl border border-gray-200 p-4 hover:border-blue-300 hover:shadow-sm transition-all"
+                  className="block bg-white rounded-2xl border border-slate-200 p-5 hover:border-blue-300 hover:shadow-md transition-all"
                 >
-                  <div className="flex items-center justify-between mb-2 gap-2">
-                    <span className="text-sm font-medium text-gray-800 truncate">{team.email}</span>
+                  <div className="flex items-center justify-between mb-3 gap-3">
+                    <span className="font-semibold text-slate-800 truncate text-base">{team.email}</span>
                     <div className="flex items-center gap-2 flex-shrink-0">
                       {team.missing_count > 0 && (
-                        <span className="text-xs text-red-500">{team.missing_count} missing</span>
+                        <span className="text-sm text-red-500 font-medium">{team.missing_count} missing</span>
                       )}
-                      <span className={`text-xs px-2 py-0.5 rounded-full font-medium ${allDone ? 'bg-green-100 text-green-700' : 'bg-gray-100 text-gray-500'}`}>
+                      <span className={`text-sm px-3 py-1 rounded-full font-semibold ${allDone ? 'bg-emerald-100 text-emerald-700' : 'bg-slate-100 text-slate-600'}`}>
                         {team.returned_count}/{team.item_count}
                       </span>
                     </div>
                   </div>
-                  <div className="w-full bg-gray-100 rounded-full h-1.5">
+                  <div className="w-full bg-slate-100 rounded-full h-2">
                     <div
-                      className={`h-1.5 rounded-full transition-all duration-300 ${allDone ? 'bg-green-500' : 'bg-blue-400'}`}
+                      className={`h-2 rounded-full transition-all duration-500 ${allDone ? 'bg-emerald-500' : 'bg-blue-500'}`}
                       style={{ width: `${pct}%` }}
                     />
                   </div>
