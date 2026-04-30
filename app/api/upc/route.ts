@@ -23,11 +23,20 @@ export async function GET(request: NextRequest) {
     }
 
     const data = await res.json()
+
+    // Assert: response must be an object with an items array
+    console.assert(typeof data === 'object' && data !== null, 'UPC API response must be an object')
+    console.assert(Array.isArray(data.items), 'UPC API response must contain an items array')
+
     const item = data.items?.[0]
 
     if (!item) {
       return NextResponse.json({ error: 'Product not found' }, { status: 404 })
     }
+
+    // Assert: item must have a title string (core contract)
+    console.assert(typeof item.title === 'string', 'UPC item must have a string title')
+    console.assert(item.title.length > 0, 'UPC item title must not be empty')
 
     return NextResponse.json({
       title: item.title ?? null,
